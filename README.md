@@ -28,7 +28,7 @@ He entendido esta prueba como un ejercicio de criterio más que de volumen. Por 
 | Node y npm | 20.19 o 22.12 | Node 24.16 | Lo exige Vite 8. |
 | MySQL | 8.0.16 | 8.4.13 | Funciones de ventana y `CHECK` aplicados. |
 
-En macOS, donde lo he desarrollado, lo más directo es Homebrew, su gestor de paquetes estándar: `brew install php composer node mysql@8.4`, y MySQL se arranca con `brew services start mysql@8.4`. Esa versión no se añade al `PATH`: su cliente está en `$(brew --prefix mysql@8.4)/bin/mysql`. En otros sistemas basta con instalar las versiones de la tabla con su instalador habitual.
+En macOS se instalan con `brew install php composer node mysql@8.4`, y MySQL se arranca con `brew services start mysql@8.4`. Esa versión no se añade al `PATH`: su cliente está en `$(brew --prefix mysql@8.4)/bin/mysql`.
 
 **1. Instalar**
 
@@ -59,9 +59,7 @@ npm run build
 php artisan serve
 ```
 
-Abre <http://127.0.0.1:8000>. `npm run build` necesita internet la primera vez porque descarga las fuentes tipográficas. Para desarrollar con recarga automática, `composer run dev` sustituye a los dos comandos.
-
-> **Si la pantalla sale en blanco:** al cortar `composer run dev` a la fuerza puede quedar el archivo `public/hot`, que apunta a un Vite ya apagado. Bórralo con `rm public/hot`.
+Abre <http://127.0.0.1:8000>. Para desarrollar con recarga automática, `composer run dev` sustituye a los dos comandos.
 
 **Usuario de prueba:** no hay. La autenticación no es obligatoria en la prueba y no la he implementado. Cada formulario pide "Tu nombre", que queda registrado en el historial y se recuerda en el navegador.
 
@@ -100,7 +98,7 @@ stateDiagram-v2
     resolved --> open: reabrir, exige motivo
 ```
 
-Cada escritura sigue el mismo recorrido, y la parte que importa es indivisible:
+Un cambio de estado sigue este recorrido, y la parte que importa es indivisible:
 
 ```mermaid
 sequenceDiagram
@@ -139,13 +137,13 @@ Las transiciones y los plazos llegan calculados del backend: la máquina de esta
 
 ### Diseño
 
-El vocabulario visual sale del propio dominio: azul de ropa de trabajo, gris hormigón y amarillo de señalización. El amarillo se reserva para la acción principal y para la banda de peligro de lo que requiere atención, y el cuadro de estado se inspira en los paneles de alarmas de una instalación. Tipografía Barlow, derivada de la rotulación de carreteras. Los colores son tokens en `resources/css/app.css`, y el tema oscuro solo los redefine.
+Los colores son tokens en `resources/css/app.css`, y el tema oscuro solo los redefine. El amarillo se reserva para la acción principal y para la banda de peligro de lo que requiere atención.
 
 ## Decisiones técnicas
 
 | Decisión | Por qué | Alternativa descartada |
 |---|---|---|
-| **Inertia + React** | El ejercicio 4 lo pide por nombre y deja explícito dónde vive el estado | Livewire: menos JavaScript, pero el estado queda repartido en el servidor |
+| **Inertia + React** | Encaja con el ejercicio 4 (JavaScript y React) y deja explícito dónde vive el estado | Livewire: menos JavaScript, pero el estado queda repartido en el servidor |
 | **Estados como enum de PHP** con `string` y `CHECK` | Una sola definición, sin strings dispersos, y la base de datos sigue rechazando valores inválidos | `ENUM` de MySQL: añadir un estado obliga a reescribir la tabla |
 | **`old_value` y `new_value` sin `CHECK`** | Un log conserva lo que ocurrió, aunque sea incoherente, para poder detectarlo | Validarlos: ocultaría justo lo que hay que diagnosticar |
 | **Transacción, `lockForUpdate` y `expected_status`** | Estado y log no pueden separarse, y un operador no puede decidir sobre un estado que otro ya cambió | Solo transacción: no evita decidir con datos antiguos |
@@ -166,8 +164,6 @@ El vocabulario visual sale del propio dominio: azul de ropa de trabajo, gris hor
 | `user_name` sin autenticación | El operador se declara en cada formulario y el backend lo valida. No es fiable por definición: en producción saldría de `auth()->user()`. |
 | `assigned_to` y "claves foráneas donde corresponda" | Es un nombre libre: no hay tabla de usuarios a la que apuntar. |
 | Estados en español en el enunciado y esquema en inglés | Valores internos en inglés (`in_review`) y etiquetas en español, ambos en el enum. |
-
-El nombre del operador se pide dentro de cada formulario y no en la cabecera porque un `<dialog>` modal deja inerte el resto de la página y no se podría corregir sin cancelar.
 
 ## Seguridad
 
@@ -371,7 +367,7 @@ Además, el código pasa Laravel Pint y se ha comprobado:
 
 - **Accesibilidad:** axe-core sin violaciones (reglas WCAG 2.2 AA y buenas prácticas) en la pantalla principal, el panel de detalle y los diálogos con errores, en ambos temas. Contraste AA comprobado para los pares de color de texto, en ambos temas.
 - **Daltonismo:** paleta de estados comprobada con un validador de separación de color, en ambos temas. El estado nunca se transmite solo por color: siempre lleva icono y texto.
-- **Instalación limpia:** clonado del repositorio público en una carpeta vacía, siguiendo este README al pie de la letra.
+- **Instalación limpia:** clonado del repositorio en una carpeta vacía, siguiendo este README al pie de la letra.
 
 ## Mapa de requisitos
 

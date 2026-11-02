@@ -2,7 +2,7 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "mikexarau/panel-operativo-incidencias",
     "type": "project",
-    "description": "Panel operativo de incidencias: prueba tecnica con Laravel, MySQL, Inertia y React.",
+    "description": "Panel operativo de incidencias: prueba técnica con Laravel, MySQL, Inertia y React.",
     "keywords": [
         "laravel",
         "mysql",
