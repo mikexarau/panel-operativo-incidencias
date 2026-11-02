@@ -1,14 +1,25 @@
 # Panel operativo de incidencias
 
-Aplicación para registrar, seguir y resolver incidencias de mantenimiento, con trazabilidad de cada cambio y un diagnóstico que detecta y corrige de forma segura las inconsistencias de datos.
+Cuadro de mando para registrar, priorizar y resolver averías de mantenimiento en tiendas, con trazabilidad completa de cada cambio y un diagnóstico que detecta y corrige de forma segura las inconsistencias de datos.
 
-Es la prueba técnica mid/senior de Optima Retail. Stack: **PHP + Laravel 13, MySQL 8, Inertia + React y Tailwind CSS**.
+**Laravel 13 · MySQL 8 · Inertia + React · Tailwind CSS 4**
 
-![Listado de incidencias con contadores por estado y banda de aviso en las vencidas](docs/panel.jpg)
+![Cuadro de mando con el estado de las incidencias, plazos, carga por prioridad y actividad reciente](docs/panel.jpg)
 
-**Índice:** [Requisitos](#requisitos) · [Instalación](#instalación) · [Ejecución](#levantar-la-aplicación) · [Diagnóstico](#diagnóstico-de-inconsistencias) · [Tests](#tests) · [Decisiones técnicas](#decisiones-técnicas) · [Inconsistencias simuladas](#inconsistencias-simuladas) · [Mapa de requisitos](#mapa-de-requisitos) · [Uso de IA](ai-process/README.md)
+<details>
+<summary>Tema oscuro y versión móvil</summary>
 
-## Requisitos
+![Tema oscuro](docs/panel-oscuro.jpg)
+
+<img src="docs/panel-movil.jpg" alt="Versión móvil con tarjetas" width="320">
+
+</details>
+
+He entendido esta prueba como un ejercicio de criterio más que de volumen. Por eso he dedicado el esfuerzo a lo que de verdad falla en un sistema así: que el estado y su historial no se separen nunca, que un operador no pueda actuar sobre datos obsoletos y que, cuando los datos ya estén mal, la corrección no empeore las cosas.
+
+**Contenido:** [Puesta en marcha](#puesta-en-marcha) · [Qué hace](#qué-hace) · [Cómo está construido](#cómo-está-construido) · [Decisiones técnicas](#decisiones-técnicas) · [Seguridad](#seguridad) · [Diagnóstico de datos](#diagnóstico-de-datos) · [Calidad](#calidad-y-verificación) · [Requisitos](#mapa-de-requisitos) · [Cómo seguiría](#límites-y-cómo-seguiría) · [Uso de IA](#uso-de-ia)
+
+## Puesta en marcha
 
 | Herramienta | Versión mínima | Probado con | Por qué |
 |---|---|---|---|
@@ -17,83 +28,163 @@ Es la prueba técnica mid/senior de Optima Retail. Stack: **PHP + Laravel 13, My
 | Node y npm | 20.19 o 22.12 | Node 24.16 | Lo exige Vite 8. |
 | MySQL | 8.0.16 | 8.4.13 | Funciones de ventana y `CHECK` aplicados. |
 
-En macOS se pueden instalar con Homebrew:
+En macOS se instalan con `brew install php composer node mysql@8.4`, y MySQL se arranca con `brew services start mysql@8.4`. Esa versión no se añade al `PATH`: su cliente está en `$(brew --prefix mysql@8.4)/bin/mysql`.
 
-```bash
-brew install php composer node mysql@8.4
-```
-
-```bash
-brew services start mysql@8.4
-```
-
-`mysql@8.4` no se añade al `PATH`: su cliente está en `$(brew --prefix mysql@8.4)/bin/mysql`.
-
-## Instalación
+**1. Instalar**
 
 ```bash
 git clone https://github.com/mikexarau/panel-operativo-incidencias.git
-```
-
-```bash
 cd panel-operativo-incidencias
-```
-
-```bash
 composer install
-```
-
-```bash
 npm ci
-```
-
-```bash
 cp .env.example .env
-```
-
-```bash
 php artisan key:generate
 ```
 
 `.env.example` apunta a MySQL en `127.0.0.1:3306`, con usuario `root`, sin contraseña y con la base `incidents`. Si tu instalación es distinta, ajusta los valores `DB_*` en `.env`.
 
-Crea la base de la aplicación y la de los tests:
+**2. Crear las bases de datos, migrar y cargar los datos de ejemplo**
 
 ```bash
 mysql -u root -e "CREATE DATABASE incidents CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; CREATE DATABASE incidents_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-```
-
-## Migrar y cargar datos de ejemplo
-
-```bash
 php artisan migrate --seed
 ```
 
-Crea 15 incidencias: 10 sanas y 5 con [inconsistencias simuladas](#inconsistencias-simuladas). Para volver al estado inicial en cualquier momento:
+Crea 15 incidencias: 10 sanas y 5 con [inconsistencias simuladas](#inconsistencias-simuladas). Para volver a este estado en cualquier momento: `php artisan migrate:fresh --seed`.
 
-```bash
-php artisan migrate:fresh --seed
-```
-
-## Levantar la aplicación
+**3. Levantar la aplicación**
 
 ```bash
 npm run build
-```
-
-```bash
 php artisan serve
 ```
 
-Abre <http://127.0.0.1:8000>. `npm run build` necesita internet la primera vez porque descarga las fuentes tipográficas.
+Abre <http://127.0.0.1:8000>. `npm run build` necesita internet la primera vez porque descarga las fuentes tipográficas. Para desarrollar con recarga automática, `composer run dev` sustituye a los dos comandos.
 
-Para desarrollar con recarga automática, `composer run dev` sustituye a los dos comandos anteriores.
+> **Si la pantalla sale en blanco:** al cortar `composer run dev` a la fuerza puede quedar el archivo `public/hot`, que apunta a un Vite ya apagado. Bórralo con `rm public/hot`.
 
-> **Pantalla en blanco:** si `composer run dev` se corta a la fuerza puede quedar el archivo `public/hot`, que apunta a un Vite ya apagado. Bórralo con `rm public/hot`.
+**Usuario de prueba:** no hay. La autenticación no es obligatoria en la prueba y no la he implementado. Cada formulario pide "Tu nombre", que queda registrado en el historial y se recuerda en el navegador.
 
-**Usuario de prueba:** no hay. La autenticación no es obligatoria en la prueba y no se ha implementado. Cada formulario pide "Tu nombre", que queda registrado en el historial y se recuerda en el navegador.
+**4. Ejecutar el diagnóstico de inconsistencias**
 
-## Diagnóstico de inconsistencias
+```bash
+php artisan incidents:diagnose
+```
+
+No modifica nada: es una simulación. El detalle está en [Diagnóstico de datos](#diagnóstico-de-datos).
+
+## Qué hace
+
+- **Cuadro de estado.** Cada cifra es también un filtro, y debajo se ve el reparto por estado. Los avisos de vencidas y de revisión de datos se encienden cuando hay alguna.
+- **Listado con plazos.** Cada incidencia muestra el tiempo restante con un medidor. Una banda de peligro marca de un vistazo lo vencido o bloqueado. Es una tabla en escritorio y tarjetas en móvil.
+- **Filtros sin recarga.** Por estado, prioridad y texto libre, con orden por fecha o por urgencia. Se pueden combinar y la URL se puede compartir.
+- **Carga y actividad.** Incidencias sin resolver por prioridad y últimos cambios de todo el sistema.
+- **Cambios de estado con confirmación.** Bloquear y reabrir exigen motivo, y cada cambio queda en el historial con valor anterior, valor nuevo, actor y fecha.
+- **Detalle de cada incidencia.** Historial, comentarios operativos y revisiones de datos pendientes.
+- **Tema claro y oscuro,** que sigue la preferencia del sistema y se puede cambiar.
+
+## Cómo está construido
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    state "Abierta" as open
+    state "En revisión" as review
+    state "Bloqueada" as blocked
+    state "Resuelta" as resolved
+    [*] --> open: crear
+    open --> review
+    review --> blocked: exige motivo
+    blocked --> review
+    review --> resolved
+    resolved --> open: reabrir, exige motivo
+```
+
+Cada escritura sigue el mismo recorrido, y la parte que importa es indivisible:
+
+```mermaid
+sequenceDiagram
+    participant UI as ChangeStatusDialog
+    participant Req as FormRequest
+    participant Act as ChangeIncidentStatus
+    participant DB as MySQL
+    UI->>Req: PATCH /incidents/{id}/status
+    Req->>Act: datos validados
+    Act->>DB: BEGIN y SELECT ... FOR UPDATE
+    Act->>Act: estado esperado y transición permitida
+    Act->>DB: UPDATE incidents e INSERT incident_logs
+    Act->>DB: COMMIT
+    Act-->>UI: redirección con los datos actualizados
+```
+
+| Capa | Dónde | Responsabilidad |
+|---|---|---|
+| Dominio | `app/Enums` | Única definición de estados, prioridades, transiciones y plazos |
+| Escrituras | `app/Actions/Incidents` | Transacción, bloqueo de fila y escritura del log |
+| Lecturas | `app/Queries/IncidentDashboard.php` | Listado, indicadores y actividad de la pantalla |
+| Entrada | `app/Http/Requests` | Validación y mensajes en español |
+| Salida | `app/Http/Resources` | Lo que recibe el frontend, incluidas las transiciones permitidas |
+| Mantenimiento | `app/Diagnostics` y `app/Console/Commands` | Detección, corrección y revisión manual |
+| Interfaz | `resources/js` | Una pantalla compuesta de componentes pequeños: el mayor no pasa de 130 líneas |
+
+### Frontend: estado, acciones y refresco
+
+| Pregunta | Respuesta |
+|---|---|
+| ¿Dónde vive el estado? | Los datos, en el servidor. Los filtros y la incidencia abierta, en la URL (`?status=&priority=&q=&flag=&sort=&incident=`). En React solo vive qué diálogo está abierto (`Pages/Incidents/Index.jsx`), el texto mientras se escribe, el tema y el nombre del operador. |
+| ¿Dónde se dispara la acción? | La navegación, solo en `lib/incidentNavigation.js`. Las escrituras, en los formularios con `useForm` (`ChangeStatusDialog`, `CreateIncidentDialog`, `CommentSection`). |
+| ¿Cómo se refresca? | Al filtrar, Inertia recarga solo el listado y sus indicadores, sin recargar la página y manteniendo la vista anterior atenuada para que no haya saltos. Al abrir una incidencia, solo `selectedIncident`. Tras escribir, el servidor redirige de vuelta y llegan todas las props actualizadas. |
+
+Las transiciones y los plazos llegan calculados del backend: la máquina de estados no se duplica en JavaScript ni depende del reloj del navegador.
+
+### Diseño
+
+El vocabulario visual sale del propio dominio: azul de ropa de trabajo, gris hormigón y amarillo de señalización. El amarillo se reserva para la acción principal y para la banda de peligro de lo que requiere atención, y el cuadro de estado se inspira en los paneles de alarmas de una instalación. Tipografía Barlow, derivada de la rotulación de carreteras. Los colores son tokens en `resources/css/app.css`, y el tema oscuro solo los redefine.
+
+## Decisiones técnicas
+
+| Decisión | Por qué | Alternativa descartada |
+|---|---|---|
+| **Inertia + React** | El ejercicio 4 lo pide por nombre y deja explícito dónde vive el estado | Livewire: menos JavaScript, pero el estado queda repartido en el servidor |
+| **Estados como enum de PHP** con `string` y `CHECK` | Una sola definición, sin strings dispersos, y la base de datos sigue rechazando valores inválidos | `ENUM` de MySQL: añadir un estado obliga a reescribir la tabla |
+| **`old_value` y `new_value` sin `CHECK`** | Un log conserva lo que ocurrió, aunque sea incoherente, para poder detectarlo | Validarlos: ocultaría justo lo que hay que diagnosticar |
+| **Transacción, `lockForUpdate` y `expected_status`** | Estado y log no pueden separarse, y un operador no puede decidir sobre un estado que otro ya cambió | Solo transacción: no evita decidir con datos antiguos |
+| **Claves foráneas `restrict`** | Borrar una incidencia no puede borrar su trazabilidad | `cascade`: cómodo, pero destruye el historial |
+| **Logs inmutables, que se anulan y no se borran** | El historial es una evidencia. Un duplicado se marca con `voided_at` y se añade una entrada que lo explica | Borrar la copia: no quedaría rastro de la corrección |
+| **Plazo derivado de la prioridad** | El esquema mínimo no tiene fecha límite, y así no hay un campo más que mantener coherente | Columna `due_at`: da más control, pero amplía el esquema sin necesidad |
+| **Índices comprobados con `EXPLAIN`** | `(status, created_at)`, `(priority, created_at)` y `(created_at)` para el listado, siempre ordenado por fecha. Un primer índice `(status, priority, created_at)` provocaba `filesort` al filtrar solo por estado | Indexar por intuición |
+| **`LIKE` con comodines escapados** | Predecible y encuentra palabras parciales. No usa índice, lo que es aceptable a este volumen | `FULLTEXT`: es la evolución natural si crecen los datos |
+| **Sin `users`, `cache` ni `jobs`** | `migrate` crea solo las tablas de la prueba, y sesión y caché usan `file` | Dejar el esqueleto completo sin usarlo |
+
+### Ambigüedades del enunciado
+
+| Punto | Cómo lo he resuelto |
+|---|---|
+| `bloqueada` no tiene salida en las transiciones mínimas, y sería un estado sin retorno | Añado `bloqueada → en revisión`. No permito pasar directamente a resuelta: debe revisarse antes. |
+| "Resuelta no debería volver a abierta sin log explícito" | `resuelta → abierta` registra la acción propia `reopened` y exige motivo. Bloquear también lo exige. |
+| "Vencidas" no tiene campo en el esquema mínimo | Se deriva de la prioridad: crítica 4 h, alta 24 h, media 72 h y baja 168 h. Los plazos son una suposición mía, editable en `IncidentPriority::slaHours()`. |
+| `user_name` sin autenticación | El operador se declara en cada formulario y el backend lo valida. No es fiable por definición: en producción saldría de `auth()->user()`. |
+| `assigned_to` y "claves foráneas donde corresponda" | Es un nombre libre: no hay tabla de usuarios a la que apuntar. |
+| Estados en español en el enunciado y esquema en inglés | Valores internos en inglés (`in_review`) y etiquetas en español, ambos en el enum. |
+
+El nombre del operador se pide dentro de cada formulario y no en la cabecera porque un `<dialog>` modal deja inerte el resto de la página y no se podría corregir sin cancelar.
+
+## Seguridad
+
+| Riesgo | Medida |
+|---|---|
+| Inyección SQL | Valores enlazados. El único SQL interpolado usa constantes de los enums, nunca entrada de usuario. Los comodines de `LIKE` se escapan. |
+| XSS | React escapa el contenido, no hay `dangerouslySetInnerHTML` y la CSP prohíbe los scripts en línea. |
+| CSRF | Middleware de Laravel, con el token que Inertia gestiona por cookie. |
+| Asignación masiva | `$fillable` explícito y datos validados. El cliente no puede fijar el estado inicial. |
+| Suplantación del sistema | Los nombres que empiezan por `system:` están reservados: nadie puede falsificar una corrección del diagnóstico. |
+| Abuso sin autenticación | Límite de 60 escrituras por minuto e IP. |
+| Clickjacking y otros | `X-Frame-Options`, `frame-ancestors`, `X-Content-Type-Options`, `Referrer-Policy` y `Permissions-Policy`. |
+| Secretos | `.env` fuera del repositorio y `.env.example` sin credenciales reales. Historial revisado en busca de secretos, y `composer audit` y `npm audit` sin vulnerabilidades. |
+
+**Antes de un despliegue real:** autenticación y autorización (fuera de alcance por el §11), `APP_DEBUG=false` y HTTPS con `SESSION_SECURE_COOKIE=true`.
+
+## Diagnóstico de datos
 
 El comando no modifica nada por defecto: es una simulación que muestra qué se corregiría.
 
@@ -119,7 +210,7 @@ php artisan incidents:diagnose --fix
 
 Con los datos de ejemplo corrige 2 casos y marca 3. Volver a ejecutarlo no cambia nada. Las incidencias marcadas muestran "Revisión de datos" en el panel y el motivo en su detalle.
 
-Las revisiones manuales se cierran con una decisión de una persona, que queda en el historial:
+Las revisiones manuales se cierran con la decisión de una persona, que queda en el historial:
 
 ```bash
 php artisan incidents:resolve-issue 1 --decision=adopt-log --actor="Responsable de calidad" --reason="Confirmado con la tienda"
@@ -132,69 +223,9 @@ php artisan incidents:resolve-issue 1 --decision=adopt-log --actor="Responsable 
 | `void-log` | El log es erróneo: lo anula sin borrarlo | `duplicate_log`, `incoherent_log` |
 | `accept` | Anomalía histórica conocida: se conserva y deja de reportarse | `duplicate_log`, `incoherent_log` |
 
-El código de salida es `0` si no queda nada pendiente y `1` si quedan hallazgos, de modo que se puede vigilar desde una tarea programada.
+El código de salida es `0` si no queda nada pendiente y `1` si quedan hallazgos, de modo que se puede vigilar desde una tarea programada. En producción, antes de `--fix`, conviene hacer una copia de seguridad con `mysqldump`.
 
-En producción, antes de `--fix`, conviene hacer una copia de seguridad con `mysqldump`.
-
-## Tests
-
-Se ejecutan contra MySQL, en `incidents_test`, porque el diagnóstico usa SQL propio de MySQL 8:
-
-```bash
-php artisan test
-```
-
-La suite es pequeña y a propósito (39 casos, 16 de ellos de la matriz de transiciones). Cubre lo que sería caro que fallara:
-
-- La matriz completa de transiciones.
-- El rollback del estado si falla la escritura del log.
-- La reapertura con motivo y el rechazo de un estado obsoleto.
-- Que los logs no se puedan reescribir ni borrar.
-- Filtros y comodines de `LIKE`.
-- Que la simulación no escriba nada.
-- Que `--fix` no toque estados, sea idempotente y no dé falsos positivos con datos sanos.
-
-## Decisiones técnicas
-
-### Backend
-
-- **Estados centralizados.** `app/Enums/IncidentStatus.php` es la única definición de valores, etiquetas y transiciones. El frontend las recibe en cada incidencia y no duplica la máquina de estados.
-- **`string` más `CHECK` en lugar de `ENUM` de MySQL.** Añadir un estado no obliga a reescribir la tabla, y la base de datos sigue rechazando valores inválidos. `old_value` y `new_value` no llevan `CHECK` a propósito: un log conserva lo que ocurrió, aunque sea incoherente, para poder detectarlo.
-- **Transacciones.** `ChangeIncidentStatus` actualiza el estado y escribe el log en la misma transacción, con `lockForUpdate` para serializar cambios concurrentes. Además, la petición incluye `expected_status`: si otro operador cambió la incidencia mientras tanto, se rechaza con un mensaje claro en lugar de aplicar una decisión tomada sobre datos antiguos.
-- **Claves foráneas `restrict`.** Borrar una incidencia no puede borrar su trazabilidad.
-- **Índices comprobados con `EXPLAIN`.** `(status, created_at)`, `(priority, created_at)` y `(created_at)` para el listado, siempre ordenado por fecha, e `(incident_id, created_at)` para el historial. Un primer índice `(status, priority, created_at)` provocaba `filesort` al filtrar solo por estado y se sustituyó.
-- **Búsqueda con `LIKE` y comodines escapados.** Es predecible y encuentra palabras parciales. No usa índice, lo que es aceptable a este volumen. Con muchos datos se pasaría a `FULLTEXT`.
-- **Logs inmutables.** `IncidentLog` impide modificarlos y borrarlos desde el modelo, y solo admite marcar `voided_at`. Es una protección de aplicación: un `UPDATE` directo en SQL la salta, y por eso existe el diagnóstico.
-- **Sin `users`, `cache` ni `jobs`.** Se eliminaron del esqueleto de Laravel para que `migrate` cree solo tablas de la prueba. Sesión y caché usan `file`.
-
-### Ambigüedades del enunciado
-
-| Punto | Decisión |
-|---|---|
-| `bloqueada` no tiene salida en las transiciones mínimas, y sería un estado sin retorno | Se añade `bloqueada → en revisión`. No se permite pasar directamente a resuelta: debe revisarse antes. |
-| "Resuelta no debería volver a abierta sin log explícito" | `resuelta → abierta` registra la acción propia `reopened` y exige motivo. Bloquear también exige motivo. |
-| "Vencidas" no tiene campo en el esquema mínimo | Se deriva del SLA por prioridad, sin columna nueva: crítica 4 h, alta 24 h, media 72 h y baja 168 h. Los plazos son una suposición, editable en `IncidentPriority::slaHours()`. |
-| `user_name` sin autenticación | El operador se declara en cada formulario y el backend lo valida. No es fiable: en producción saldría de `auth()->user()`. |
-| `assigned_to` y "claves foráneas donde corresponda" | Es un nombre libre: no hay tabla de usuarios a la que apuntar. |
-| Estados en español en el enunciado y esquema en inglés | Valores internos en inglés (`in_review`) y etiquetas en español, ambos en el enum. |
-
-### Frontend: estado, acciones y refresco
-
-| Pregunta | Respuesta |
-|---|---|
-| ¿Dónde vive el estado? | Los datos, en el servidor. Los filtros y la incidencia abierta, en la URL (`?status=&priority=&q=&incident=`). En React solo vive qué diálogo está abierto (`Pages/Incidents/Index.jsx`), el texto mientras se escribe y el nombre del operador (`useOperator`). |
-| ¿Dónde se dispara la acción? | La navegación, solo en `hooks/useIncidentFilters.js`. Las escrituras, en los formularios con `useForm` (`ChangeStatusDialog`, `CreateIncidentDialog`, `CommentSection`). |
-| ¿Cómo se refresca? | Al filtrar, Inertia recarga solo `incidents`, `statusSummary` y `filters`, sin recargar la página. Al abrir una incidencia, solo `selectedIncident`. Tras escribir, el servidor redirige de vuelta y llegan todas las props actualizadas. |
-
-Cubre las cinco interacciones del ejercicio 4, aunque se piden dos: filtro rápido sin recarga, confirmación antes de resolver o bloquear, contadores por estado, resaltado de vencidas y bloqueadas con una banda de peligro, y componentes React para todo ello.
-
-Una decisión de implementación: el nombre del operador se pide dentro de cada formulario y no en la cabecera, porque un `<dialog>` modal deja inerte el resto de la página y no se podría corregir sin cancelar.
-
-### Fuera de alcance
-
-Siguiendo el §11 del enunciado no se incluye autenticación, roles, notificaciones, Docker, deploy ni integraciones. Tampoco editar una incidencia ya creada ni reasignarla. Las revisiones de datos se cierran por consola, no desde la interfaz.
-
-## Inconsistencias simuladas
+### Inconsistencias simuladas
 
 `database/seeders/InconsistentIncidentSeeder.php` las inserta con `DB::table`, saltándose el dominio, como ocurriría con un `UPDATE` manual, una importación o código antiguo sin transacción.
 
@@ -322,6 +353,26 @@ HAVING problem IS NOT NULL;
 
 **Por qué lo detecta:** comprueba cada log contra el catálogo y la máquina de estados, y contra el log anterior: su `old_value` debe coincidir con el `new_value` previo. Detecta valores inválidos, cambios sin efecto, reaperturas sin la acción explícita, transiciones prohibidas y cadenas rotas. Las reconciliaciones quedan fuera porque son compensatorias por definición, y los duplicados ya los informa la regla 3.
 
+## Calidad y verificación
+
+```bash
+php artisan test
+```
+
+Los tests se ejecutan contra MySQL, en `incidents_test`, porque el diagnóstico usa SQL propio de MySQL 8. La suite es pequeña a propósito (52 casos, 16 de ellos de la matriz de transiciones) y cubre lo que sería caro que fallara:
+
+- La matriz completa de transiciones y el rollback del estado si falla la escritura del log.
+- La reapertura con motivo, el rechazo de un estado obsoleto y que los logs no se puedan reescribir ni borrar.
+- Filtros, comodines de `LIKE`, orden por urgencia y que el filtro de vencidas coincida con la regla del modelo.
+- Que la simulación no escriba nada, y que `--fix` no toque estados, sea idempotente y no dé falsos positivos con datos sanos.
+- La protección contra suplantación, el límite de escrituras y las cabeceras de seguridad.
+
+Además, el código pasa Laravel Pint y se ha comprobado:
+
+- **Accesibilidad:** axe-core sin violaciones (reglas WCAG 2.2 AA y buenas prácticas) en la pantalla principal, el panel de detalle y los diálogos con errores, en ambos temas. Contraste AA comprobado para los pares de color de texto, en ambos temas.
+- **Daltonismo:** paleta de estados comprobada con un validador de separación de color, en ambos temas. El estado nunca se transmite solo por color: siempre lleva icono y texto.
+- **Instalación limpia:** clonado del repositorio público en una carpeta vacía, siguiendo este README al pie de la letra.
+
 ## Mapa de requisitos
 
 | Enunciado | Dónde está |
@@ -335,9 +386,26 @@ HAVING problem IS NOT NULL;
 | §5 Filtros por estado, prioridad y texto | `app/Http/Requests/ListIncidentsRequest.php` y `Incident::scopeFilter` |
 | §5 Historial y comentarios | `app/Http/Resources/IncidentDetailResource.php`, `HistoryTimeline.jsx`, `CommentSection.jsx` |
 | §5 Errores claros | `lang/es/validation.php` y `app/Exceptions/InvalidStatusTransition.php` |
-| §6 Interacción de frontend | `hooks/useIncidentFilters.js`, `StatusSummary.jsx`, `ChangeStatusDialog.jsx` |
+| §6 Interacción de frontend | `lib/incidentNavigation.js`, `StatusBoard.jsx`, `ChangeStatusDialog.jsx`, `SlaIndicator.jsx` |
 | §7 Datos inconsistentes | `database/seeders/InconsistentIncidentSeeder.php` |
 | §7 Detección y corrección | `app/Diagnostics/` y `app/Console/Commands/` |
 | §7 Simulación previa | `php artisan incidents:diagnose`, sin `--fix` |
 | §8 Uso de IA | [`ai-process/README.md`](ai-process/README.md) |
 | §9 `.env.example` sin credenciales | [`.env.example`](.env.example) |
+
+## Límites y cómo seguiría
+
+Siguiendo el §11 no he incluido autenticación, roles, notificaciones, Docker, deploy ni integraciones. Si esto fuera a producción, este sería mi orden:
+
+1. **Autenticación y autorización,** para que el actor deje de ser autodeclarado.
+2. **Editar y reasignar incidencias,** con su trazabilidad.
+3. **Cerrar las revisiones de datos desde la interfaz,** hoy solo por consola.
+4. **Inmutabilidad de los logs en la base de datos.** Hoy la protege el modelo, y un `UPDATE` directo en SQL la salta: precisamente el caso que detecta el diagnóstico.
+5. **`FULLTEXT` para la búsqueda** cuando el volumen lo justifique.
+6. **Lanzar el diagnóstico de forma programada,** aprovechando su código de salida.
+
+La accesibilidad está comprobada con herramientas automáticas, que solo detectan una parte de los problemas: falta una prueba con lectores de pantalla reales.
+
+## Uso de IA
+
+He usado Claude Code como herramienta de implementación, dirigiendo el proceso por iteraciones. El detalle que pide el §8 (herramientas, prompts, partes generadas, decisiones y errores detectados) está en [`ai-process/README.md`](ai-process/README.md).
