@@ -5,13 +5,12 @@ He usado IA como herramienta de implementación y he dirigido el proceso por ite
 ## Herramientas
 
 - **Claude Code** en la aplicación de escritorio de Claude, con el modelo **Claude Opus 5.5** de Anthropic.
-- Su navegador integrado, para probar la interfaz en escritorio y en móvil.
 - **PHPStan con Larastan, ESLint y axe-core**, ejecutados de forma puntual para revisar el resultado, sin añadirlos como dependencias.
 
 ## Prompts principales
 
 1. **Encargo:** construir la prueba leyendo todo el PDF con detalle, ciñéndose a los requisitos y al stack, documentando, manteniendo la trazabilidad, localizando inconsistencias y proponiendo correcciones seguras.
-2. **Decisiones de planificación:** ante las preguntas de la IA elegí Homebrew para el entorno, Inertia + React para el frontend y repositorio público. Después revisé y aprobé el plan.
+2. **Decisiones de planificación:** ante las preguntas de la IA elegí Inertia + React para el frontend, repositorio público y Homebrew para instalar el entorno. Elegí Homebrew porque desarrollo en macOS, donde es el gestor de paquetes estándar, y lo que tenía instalado (PHP 8.0 y MySQL 5.7 de MAMP) no llegaba a lo que exigen Laravel 13 y el SQL del diagnóstico. El proyecto no depende de Homebrew. Después revisé y aprobé el plan.
 3. **Segunda pasada:** pedir que se revisara todo de nuevo (seguridad, buenas prácticas de código y ajuste a los requisitos del PDF) y que la interfaz pasara de un listado correcto a un cuadro de mando moderno y funcional.
 
 ## Partes generadas con ayuda de IA

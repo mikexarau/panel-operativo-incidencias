@@ -28,7 +28,7 @@ He entendido esta prueba como un ejercicio de criterio más que de volumen. Por 
 | Node y npm | 20.19 o 22.12 | Node 24.16 | Lo exige Vite 8. |
 | MySQL | 8.0.16 | 8.4.13 | Funciones de ventana y `CHECK` aplicados. |
 
-En macOS se instalan con `brew install php composer node mysql@8.4`, y MySQL se arranca con `brew services start mysql@8.4`. Esa versión no se añade al `PATH`: su cliente está en `$(brew --prefix mysql@8.4)/bin/mysql`.
+En macOS, donde lo he desarrollado, lo más directo es Homebrew, su gestor de paquetes estándar: `brew install php composer node mysql@8.4`, y MySQL se arranca con `brew services start mysql@8.4`. Esa versión no se añade al `PATH`: su cliente está en `$(brew --prefix mysql@8.4)/bin/mysql`. En otros sistemas basta con instalar las versiones de la tabla con su instalador habitual.
 
 **1. Instalar**
 
