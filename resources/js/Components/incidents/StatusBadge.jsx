@@ -1,4 +1,4 @@
-import { STATUS_STYLES } from '../../lib/statusStyles';
+import { STATUS_STYLES } from '../../lib/presentation';
 import Icon from '../ui/Icon';
 
 export default function StatusBadge({ status, label }) {

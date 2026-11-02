@@ -12,6 +12,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property string $title
+ * @property string $description
+ * @property IncidentStatus $status
+ * @property IncidentPriority $priority
+ * @property string $requester_name
+ * @property ?string $assigned_to
+ * @property CarbonInterface $created_at
+ * @property CarbonInterface $updated_at
+ */
 class Incident extends Model
 {
     use HasFactory;

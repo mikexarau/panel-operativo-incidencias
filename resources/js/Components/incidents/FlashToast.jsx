@@ -38,7 +38,7 @@ export default function FlashToast() {
             ref={toast}
             popover="manual"
             role="status"
-            className="fixed top-auto right-auto bottom-4 left-4 m-0 max-w-[calc(100%-2rem)] rounded-sm bg-ink px-4 py-2 text-white"
+            className="fixed top-auto right-auto bottom-4 left-4 m-0 max-w-[calc(100%-2rem)] rounded-sm bg-ink px-4 py-2 text-surface"
         >
             <span className="flex items-center gap-2">
                 <Icon name="check" />

@@ -40,7 +40,7 @@ class DataIssueResolver
                 IssueDecision::KeepStatus => $this->keepStatus($incident, $actor, $metadata),
                 IssueDecision::AdoptLog => $this->adoptLog($incident, $actor, $metadata),
                 IssueDecision::VoidLog => $this->voidLog($issue, $actor, $metadata),
-                IssueDecision::Accept => null,
+                IssueDecision::Accept, IssueDecision::NoLongerDetected => null,
             };
 
             $issue->forceFill([

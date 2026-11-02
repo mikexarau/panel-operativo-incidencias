@@ -3,9 +3,18 @@
 namespace App\Models;
 
 use App\Diagnostics\ConsistencyRule;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $incident_id
+ * @property ConsistencyRule $rule
+ * @property string $fingerprint
+ * @property array<string, mixed> $details
+ * @property ?CarbonInterface $resolved_at
+ */
 class IncidentDataIssue extends Model
 {
     protected $fillable = [

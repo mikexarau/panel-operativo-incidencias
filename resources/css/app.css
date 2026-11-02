@@ -1,29 +1,70 @@
 @import 'tailwindcss';
 
 /*
- * Tokens del panel. Vocabulario visual tomado del mantenimiento: azul de ropa de
- * trabajo, gris hormigón y amarillo de señalización. El amarillo se reserva para la
- * acción principal y la banda de peligro de lo que requiere atención.
+ * Tokens del panel. El vocabulario viene del mantenimiento: azul de ropa de trabajo,
+ * gris hormigón y amarillo de señalización, reservado a la acción principal y a la banda
+ * de peligro. Los componentes solo usan estos tokens, y el tema oscuro solo los redefine.
+ *
+ * Cada estado tiene tres tonos: mark para formas (barras, medidores), text para texto
+ * legible y tint para fondos. Paleta comprobada para daltonismo y contraste.
  */
-@theme {
+@theme static {
     --font-sans: 'Barlow', ui-sans-serif, system-ui, sans-serif;
     --font-display: 'Barlow Condensed', 'Barlow', ui-sans-serif, system-ui, sans-serif;
 
-    --color-ground: #e9edf0;
+    --color-ground: #edf0f3;
     --color-surface: #ffffff;
+    --color-raised: #f3f5f7;
     --color-ink: #14242f;
-    --color-muted: #566875;
-    --color-line: #cbd4db;
+    --color-muted: #52636f;
+    --color-line: #d5dce2;
+    --color-control: #7b8a97;
+    --color-band: #14242f;
+    --color-on-band: #ffffff;
+    --color-on-band-muted: #c3ced6;
     --color-signal: #f2c200;
+    --color-on-signal: #14242f;
 
-    --color-open: #1f5fa8;
+    --color-open-mark: #2a78d6;
+    --color-open-text: #1a5aa8;
     --color-open-tint: #e3edf8;
-    --color-review: #8a5a00;
+    --color-review-mark: #eda100;
+    --color-review-text: #7a4f00;
     --color-review-tint: #fbf0d9;
-    --color-blocked: #b3261e;
+    --color-blocked-mark: #e34948;
+    --color-blocked-text: #a8201a;
     --color-blocked-tint: #fbe6e4;
-    --color-resolved: #1e7a4c;
+    --color-resolved-mark: #1baf7a;
+    --color-resolved-text: #146c49;
     --color-resolved-tint: #e1f3e9;
+}
+
+:root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --color-ground: #0e1920;
+    --color-surface: #16242e;
+    --color-raised: #1e2f3b;
+    --color-ink: #e7edf2;
+    --color-muted: #9fb0bc;
+    --color-line: #2c3e4a;
+    --color-control: #728695;
+    --color-band: #0a1319;
+    --color-on-band: #f2f5f7;
+    --color-on-band-muted: #a9b8c3;
+
+    --color-open-mark: #4a90e2;
+    --color-open-text: #a3c9f7;
+    --color-open-tint: #16304d;
+    --color-review-mark: #c28605;
+    --color-review-text: #f0c766;
+    --color-review-tint: #3a2c0b;
+    --color-blocked-mark: #d33f3d;
+    --color-blocked-text: #f8aeaa;
+    --color-blocked-tint: #451b1c;
+    --color-resolved-mark: #25a878;
+    --color-resolved-text: #85dcb9;
+    --color-resolved-tint: #103527;
 }
 
 @layer base {
@@ -31,24 +72,48 @@
         background-color: var(--color-ground);
         color: var(--color-ink);
         font-family: var(--font-sans);
-        font-variant-numeric: tabular-nums;
     }
 
     :focus-visible {
-        outline: 2px solid var(--color-ink);
+        outline: 2px solid var(--focus-color, var(--color-ink));
         outline-offset: 2px;
     }
 
     dialog::backdrop {
-        background-color: rgb(20 36 47 / 0.55);
+        background-color: rgb(10 19 25 / 0.6);
+    }
+
+    [popover] {
+        color: inherit;
     }
 }
 
 @layer components {
+    .band {
+        --focus-color: var(--color-signal);
+
+        background-color: var(--color-band);
+        color: var(--color-on-band);
+    }
+
+    .panel {
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-line);
+        border-radius: 0.375rem;
+    }
+
+    .panel-title {
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
     .btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        gap: 0.375rem;
         min-height: 2.5rem;
         padding: 0.375rem 1rem;
         border: 1px solid transparent;
@@ -65,21 +130,22 @@
 
     .btn-primary {
         background-color: var(--color-signal);
-        color: var(--color-ink);
+        color: var(--color-on-signal);
     }
 
-    .btn-primary:hover {
+    .btn-primary:hover:not(:disabled) {
         background-color: #ffd21f;
     }
 
     .btn-secondary {
-        background-color: var(--color-surface);
-        border-color: var(--color-ink);
+        background-color: transparent;
+        border-color: var(--color-control);
         color: var(--color-ink);
     }
 
-    .btn-secondary:hover {
+    .btn-secondary:hover:not(:disabled) {
         background-color: var(--color-ink);
+        border-color: var(--color-ink);
         color: var(--color-surface);
     }
 
@@ -89,8 +155,18 @@
         text-underline-offset: 3px;
     }
 
-    .btn-quiet:hover {
-        background-color: var(--color-ground);
+    .btn-quiet:hover:not(:disabled) {
+        background-color: var(--color-raised);
+    }
+
+    .btn-on-band {
+        border-color: var(--color-on-band-muted);
+        color: var(--color-on-band);
+    }
+
+    .btn-on-band:hover:not(:disabled) {
+        background-color: var(--color-on-band);
+        color: var(--color-band);
     }
 
     .btn-sm {
@@ -112,19 +188,50 @@
         min-height: 2.5rem;
         padding: 0.375rem 0.625rem;
         background-color: var(--color-surface);
-        border: 1px solid var(--color-muted);
+        border: 1px solid var(--color-control);
         border-radius: 0.25rem;
+        color: var(--color-ink);
+    }
+
+    .field-control::placeholder {
+        color: var(--color-muted);
+        opacity: 1;
     }
 
     .field-control[aria-invalid='true'] {
-        border-color: var(--color-blocked);
-        box-shadow: inset 0 0 0 1px var(--color-blocked);
+        border-color: var(--color-blocked-mark);
+        box-shadow: inset 0 0 0 1px var(--color-blocked-mark);
     }
 
     .field-error {
         margin-top: 0.25rem;
-        color: var(--color-blocked);
+        color: var(--color-blocked-text);
         font-size: 0.875rem;
+    }
+
+    /* Indicador del panel de estado: cada uno funciona también como filtro. */
+    .tile {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.75rem 0.5rem;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .tile:hover {
+        background-color: var(--color-raised);
+    }
+
+    .tile[aria-pressed='true'] {
+        background-color: var(--color-raised);
+    }
+
+    @media (width >= 40rem) {
+        .tile {
+            padding: 0.875rem 1rem;
+        }
     }
 
     /* Banda de peligro: marca de un vistazo lo vencido o bloqueado. */
@@ -132,14 +239,14 @@
         background-image: repeating-linear-gradient(
             -45deg,
             var(--color-signal) 0 6px,
-            var(--color-ink) 6px 12px
+            #14242f 6px 12px
         );
     }
 
     .drawer {
         margin: 0 0 0 auto;
         width: 100%;
-        max-width: 36rem;
+        max-width: 38rem;
         height: 100dvh;
         max-height: none;
         background-color: var(--color-surface);

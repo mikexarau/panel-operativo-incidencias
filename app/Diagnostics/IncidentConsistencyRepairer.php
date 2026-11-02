@@ -9,6 +9,7 @@ use App\Models\IncidentDataIssue;
 use App\Models\IncidentLog;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use LogicException;
 
 /**
  * Aplica lo que el diagnóstico propone. Nunca cambia incidents.status: solo añade
@@ -32,6 +33,7 @@ class IncidentConsistencyRepairer
         return match ($finding->rule) {
             ConsistencyRule::ResolvedWithoutLog => $this->reconstructResolutionLog($finding, $runId),
             ConsistencyRule::DuplicateLog => $this->voidDuplicate($finding, $runId),
+            default => throw new LogicException("La regla {$finding->rule->value} nunca se corrige automáticamente."),
         };
     }
 

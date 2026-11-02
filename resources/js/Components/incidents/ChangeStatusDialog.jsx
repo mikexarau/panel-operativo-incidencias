@@ -18,7 +18,7 @@ export default function ChangeStatusDialog({ incident, transition, operator, onC
     };
 
     return (
-        <Modal title={`${transition.action_label} incidencia`} onClose={onClose}>
+        <Modal title={transition.action_label} onClose={onClose}>
             <form className="grid gap-3" onSubmit={submit} noValidate>
                 <p>
                     <strong className="font-semibold">{incident.title}</strong> pasará de {incident.status_label} a{' '}
@@ -35,6 +35,7 @@ export default function ChangeStatusDialog({ incident, transition, operator, onC
                     id="status-reason"
                     label={transition.requires_reason ? 'Motivo' : 'Nota (opcional)'}
                     as="textarea"
+                    data-autofocus
                     rows={2}
                     maxLength={1000}
                     value={form.data.reason}

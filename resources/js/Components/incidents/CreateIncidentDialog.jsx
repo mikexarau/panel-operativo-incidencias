@@ -24,6 +24,7 @@ export default function CreateIncidentDialog({ priorities, operator, onClose }) 
                 <Field
                     id="create-title"
                     label="Título"
+                    data-autofocus
                     maxLength={160}
                     value={form.data.title}
                     onChange={(event) => form.setData('title', event.target.value)}

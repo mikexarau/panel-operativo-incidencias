@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\IncidentLogAction;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,17 @@ use LogicException;
 
 /**
  * Registro de trazabilidad inmutable: no se borra y solo admite marcar voided_at.
+ *
+ * @property int $id
+ * @property int $incident_id
+ * @property IncidentLogAction $action
+ * @property ?string $old_value
+ * @property ?string $new_value
+ * @property string $user_name
+ * @property ?array<string, mixed> $metadata
+ * @property CarbonInterface $created_at
+ * @property ?CarbonInterface $voided_at
+ * @property Incident $incident
  */
 class IncidentLog extends Model
 {
