@@ -10,10 +10,10 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Simula a proposito datos corruptos para el ejercicio de mantenimiento.
+ * Simula a propósito datos corruptos para el ejercicio de mantenimiento.
  *
  * Usa DB::table y no las acciones del dominio: esas inconsistencias nacen de
- * cambios hechos por SQL a mano, importaciones o codigo antiguo sin transaccion.
+ * cambios hechos por SQL a mano, importaciones o código antiguo sin transacción.
  */
 class InconsistentIncidentSeeder extends Seeder
 {
@@ -26,7 +26,7 @@ class InconsistentIncidentSeeder extends Seeder
         $this->incoherentLog();
     }
 
-    /** El estado se cambio directamente en base de datos: falta el log de resolucion. */
+    /** El estado se cambió directamente en base de datos: falta el log de resolución. */
     private function resolvedWithoutResolutionLog(): void
     {
         $openedAt = now()->subDays(6);
@@ -37,7 +37,7 @@ class InconsistentIncidentSeeder extends Seeder
         $this->log($id, IncidentLogAction::StatusChanged, IncidentStatus::Open, IncidentStatus::InReview, 'Coordinación', $openedAt->copy()->addHours(2));
     }
 
-    /** El ultimo log dice "resuelta", pero la incidencia figura como bloqueada. */
+    /** El último log dice "resuelta", pero la incidencia figura como bloqueada. */
     private function statusDisagreesWithLastLog(): void
     {
         $openedAt = now()->subDays(5);
@@ -50,7 +50,7 @@ class InconsistentIncidentSeeder extends Seeder
         $this->log($id, IncidentLogAction::StatusChanged, IncidentStatus::InReview, IncidentStatus::Resolved, 'Frío Industrial Prat', $resolvedAt);
     }
 
-    /** Doble envio: misma transicion del mismo operador con dos segundos de diferencia. */
+    /** Doble envío: misma transición del mismo operador con dos segundos de diferencia. */
     private function exactDuplicateLog(): void
     {
         $openedAt = now()->subDays(4);
@@ -63,7 +63,7 @@ class InconsistentIncidentSeeder extends Seeder
         $this->log($id, IncidentLogAction::StatusChanged, IncidentStatus::Open, IncidentStatus::InReview, 'Coordinación', $reviewAt->copy()->addSeconds(2));
     }
 
-    /** Misma transicion, pero de otra persona y tres horas despues: no se puede asumir que sobre. */
+    /** Misma transición, pero de otra persona y tres horas después: no se puede asumir que sobre. */
     private function ambiguousDuplicateLog(): void
     {
         $openedAt = now()->subDays(3);
@@ -76,7 +76,7 @@ class InconsistentIncidentSeeder extends Seeder
         $this->log($id, IncidentLogAction::StatusChanged, IncidentStatus::Open, IncidentStatus::InReview, 'Protección Contra Incendios Vallès', $firstAt->copy()->addHours(3));
     }
 
-    /** Salta de abierta a resuelta sin pasar por revision: la maquina de estados no lo permite. */
+    /** Salta de abierta a resuelta sin pasar por revisión: la máquina de estados no lo permite. */
     private function incoherentLog(): void
     {
         $openedAt = now()->subDays(2);

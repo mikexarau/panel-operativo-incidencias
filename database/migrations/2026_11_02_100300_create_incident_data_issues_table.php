@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Cola de inconsistencias que el diagnostico no corrige solo porque no hay
-     * informacion suficiente. Las abre incidents:diagnose --fix y las cierra una
-     * decision humana con incidents:resolve-issue.
+     * Cola de inconsistencias que el diagnóstico no corrige solo porque no hay
+     * información suficiente. Las abre incidents:diagnose --fix y las cierra una
+     * decisión humana con incidents:resolve-issue.
      */
     public function up(): void
     {

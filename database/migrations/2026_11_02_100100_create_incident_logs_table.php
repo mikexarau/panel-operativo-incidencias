@@ -14,8 +14,8 @@ return new class extends Migration
             // restrict: borrar una incidencia nunca debe poder borrar su trazabilidad.
             $table->foreignId('incident_id')->constrained()->restrictOnDelete();
             $table->string('action', 40);
-            // Sin CHECK en old_value/new_value: un log conserva lo que ocurrio,
-            // aunque sea incoherente, para que el diagnostico pueda detectarlo.
+            // Sin CHECK en old_value/new_value: un log conserva lo que ocurrió,
+            // aunque sea incoherente, para que el diagnóstico pueda detectarlo.
             $table->string('old_value', 50)->nullable();
             $table->string('new_value', 50)->nullable();
             $table->string('user_name', 100);
@@ -24,7 +24,7 @@ return new class extends Migration
             // Un log es inmutable salvo por esta marca: se anula, no se borra.
             $table->timestamp('voided_at')->nullable();
 
-            // Cubre el historial y la busqueda del ultimo log por incidencia.
+            // Cubre el historial y la búsqueda del último log por incidencia.
             $table->index(['incident_id', 'created_at']);
         });
 

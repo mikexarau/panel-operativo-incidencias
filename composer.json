@@ -1,9 +1,14 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "mikexarau/panel-operativo-incidencias",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "Panel operativo de incidencias: prueba tecnica con Laravel, MySQL, Inertia y React.",
+    "keywords": [
+        "laravel",
+        "mysql",
+        "inertia",
+        "react"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.3",

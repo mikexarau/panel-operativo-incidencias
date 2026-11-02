@@ -5,8 +5,8 @@ import Icon from '../ui/Icon';
 const VISIBLE_MS = 4000;
 
 /**
- * Confirmacion breve tras una accion. Usa popover para aparecer por encima de un
- * <dialog> abierto, que de otro modo la dejaria debajo de su fondo.
+ * Confirmación breve tras una acción. Usa popover para aparecer por encima de un
+ * <dialog> abierto, que de otro modo la dejaría debajo de su fondo.
  */
 export default function FlashToast() {
     const [message, setMessage] = useState(null);

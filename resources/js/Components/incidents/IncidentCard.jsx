@@ -4,7 +4,7 @@ import PriorityBadge from './PriorityBadge';
 import StatusActions from './StatusActions';
 import StatusBadge from './StatusBadge';
 
-/** Version movil de una fila del listado. */
+/** Versión móvil de una fila del listado. */
 export default function IncidentCard({ incident, onOpen, onChangeStatus }) {
     return (
         <article className="relative overflow-hidden rounded-sm bg-surface py-3 pr-3 pl-5">

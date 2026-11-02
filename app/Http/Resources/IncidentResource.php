@@ -14,14 +14,13 @@ class IncidentResource extends JsonResource
 {
     /**
      * Las transiciones viajan con cada incidencia para que el frontend pinte las
-     * acciones sin duplicar la maquina de estados en JavaScript.
+     * acciones sin duplicar la máquina de estados en JavaScript.
      */
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'description' => $this->description,
             'status' => $this->status->value,
             'status_label' => $this->status->label(),
             'priority' => $this->priority->value,

@@ -7,8 +7,8 @@ use App\Models\Incident;
 use App\Models\IncidentLog;
 
 /**
- * Correcciones de trazabilidad: siempre anaden informacion, nunca la reescriben.
- * El llamante es responsable de la transaccion y del bloqueo.
+ * Correcciones de trazabilidad: siempre añaden información, nunca la reescriben.
+ * El llamante es responsable de la transacción y del bloqueo.
  */
 class TraceabilityCorrections
 {
@@ -36,7 +36,7 @@ class TraceabilityCorrections
     }
 
     /**
-     * Ultimo log de estado vigente de la incidencia.
+     * Último log de estado vigente de la incidencia.
      */
     public function lastStatusLog(Incident $incident): ?IncidentLog
     {

@@ -8,10 +8,10 @@ enum IncidentLogAction: string
     case StatusChanged = 'status_changed';
     case Reopened = 'reopened';
 
-    /** Compensa un hueco de trazabilidad detectado por el diagnostico o decidido en revision manual. */
+    /** Compensa un hueco de trazabilidad detectado por el diagnóstico o decidido en revisión manual. */
     case StatusReconciled = 'status_reconciled';
 
-    /** Deja constancia de que otro log se ha anulado. No se borra ningun log. */
+    /** Deja constancia de que otro log se ha anulado. No se borra ningún log. */
     case LogVoided = 'log_voided';
 
     public function label(): string
@@ -36,8 +36,8 @@ enum IncidentLogAction: string
     }
 
     /**
-     * Acciones que siguen la maquina de estados normal. Una reconciliacion es
-     * compensatoria por definicion y queda fuera de las comprobaciones de cadena.
+     * Acciones que siguen la máquina de estados normal. Una reconciliación es
+     * compensatoria por definición y queda fuera de las comprobaciones de cadena.
      *
      * @return list<self>
      */

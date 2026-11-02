@@ -3,10 +3,10 @@
 namespace App\Enums;
 
 /**
- * Catalogo de estados y maquina de estados de una incidencia.
+ * Catálogo de estados y máquina de estados de una incidencia.
  *
- * Es la unica fuente de verdad: backend, frontend (via props) y diagnostico
- * leen de aqui los valores, etiquetas y transiciones permitidas.
+ * Es la única fuente de verdad: backend, frontend (vía props) y diagnóstico
+ * leen de aquí los valores, etiquetas y transiciones permitidas.
  */
 enum IncidentStatus: string
 {
@@ -45,7 +45,7 @@ enum IncidentStatus: string
 
     /**
      * Pasar a este estado desde $from exige justificar el motivo:
-     * bloquear (que se espera y de quien) y reabrir (por que no estaba resuelta).
+     * bloquear (qué se espera y de quién) y reabrir (por qué no estaba resuelta).
      */
     public function requiresReasonFrom(self $from): bool
     {
@@ -53,7 +53,7 @@ enum IncidentStatus: string
     }
 
     /**
-     * Verbo que ve el operador en el boton que lleva a este estado desde $from.
+     * Verbo que ve el operador en el botón que lleva a este estado desde $from.
      */
     public function actionLabelFrom(self $from): string
     {

@@ -16,7 +16,7 @@ function Segment({ label, count, isActive, activeBar, onClick }) {
     );
 }
 
-/** Contadores por estado que funcionan a la vez como filtro rapido. */
+/** Contadores por estado que funcionan a la vez como filtro rápido. */
 export default function StatusSummary({ summary, activeStatus, onSelect }) {
     const total = summary.reduce((sum, status) => sum + status.count, 0);
 

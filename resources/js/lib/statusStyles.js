@@ -1,5 +1,5 @@
 /**
- * Apariencia de cada estado. Solo presentacion: valores, etiquetas y transiciones
+ * Apariencia de cada estado. Solo presentación: valores, etiquetas y transiciones
  * vienen del backend (app/Enums/IncidentStatus.php).
  */
 export const STATUS_STYLES = {

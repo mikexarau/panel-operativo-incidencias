@@ -11,11 +11,11 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Aplica lo que el diagnostico propone. Nunca cambia incidents.status: solo anade
- * trazas compensatorias, anula copias evidentes o registra el caso para revision.
+ * Aplica lo que el diagnóstico propone. Nunca cambia incidents.status: solo añade
+ * trazas compensatorias, anula copias evidentes o registra el caso para revisión.
  *
- * Cada hallazgo va en su propia transaccion y se revalida dentro del bloqueo, porque
- * los datos pueden haber cambiado desde la deteccion.
+ * Cada hallazgo va en su propia transacción y se revalida dentro del bloqueo, porque
+ * los datos pueden haber cambiado desde la detección.
  */
 class IncidentConsistencyRepairer
 {

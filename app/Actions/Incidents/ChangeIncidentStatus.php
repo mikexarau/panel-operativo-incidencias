@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\DB;
 class ChangeIncidentStatus
 {
     /**
-     * Cambia el estado y escribe su log en la misma transaccion. El bloqueo de
-     * fila serializa cambios concurrentes, y $expected evita aplicar una decision
+     * Cambia el estado y escribe su log en la misma transacción. El bloqueo de
+     * fila serializa cambios concurrentes, y $expected evita aplicar una decisión
      * tomada sobre un estado que otro operador ya ha modificado.
      *
      * @throws InvalidStatusTransition

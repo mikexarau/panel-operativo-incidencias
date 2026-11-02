@@ -22,7 +22,7 @@ const PATHS = {
     close: <path d="M6 6l12 12M18 6 6 18" />,
 };
 
-/** Icono decorativo: el texto que lo acompana ya da el significado. */
+/** Icono decorativo: el texto que lo acompaña ya da el significado. */
 export default function Icon({ name, className = 'size-4' }) {
     return (
         <svg

@@ -12,7 +12,7 @@ function Transition({ log }) {
     );
 }
 
-/** Historial cronologico. Los logs anulados se muestran tachados: nunca desaparecen. */
+/** Historial cronológico. Los logs anulados se muestran tachados: nunca desaparecen. */
 export default function HistoryTimeline({ logs }) {
     if (logs.length === 0) {
         return <p className="text-sm text-muted">Esta incidencia no tiene ningún cambio registrado.</p>;

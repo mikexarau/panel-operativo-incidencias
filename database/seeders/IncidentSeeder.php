@@ -11,7 +11,7 @@ use Illuminate\Support\Carbon;
 
 /**
  * Datos sanos: cada escenario se reproduce con las acciones reales del dominio
- * viajando en el tiempo, asi que sus logs son coherentes por construccion.
+ * viajando en el tiempo, así que sus logs son coherentes por construcción.
  */
 class IncidentSeeder extends Seeder
 {

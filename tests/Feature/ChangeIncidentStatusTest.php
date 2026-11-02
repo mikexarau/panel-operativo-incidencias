@@ -71,7 +71,7 @@ class ChangeIncidentStatusTest extends TestCase
     {
         $incident = Incident::factory()->create(['status' => IncidentStatus::Blocked]);
 
-        // El operador vio "en revision", pero otro la ha bloqueado mientras tanto.
+        // El operador vio "en revisión", pero otro la ha bloqueado mientras tanto.
         $this->change($incident, 'in_review', ['expected_status' => 'in_review'])
             ->assertSessionHasErrors('status');
 
@@ -89,7 +89,7 @@ class ChangeIncidentStatusTest extends TestCase
 
         try {
             $this->change($incident, 'in_review');
-            $this->fail('La accion deberia propagar el fallo.');
+            $this->fail('La acción debería propagar el fallo.');
         } catch (RuntimeException $e) {
             $this->assertSame('Fallo al escribir el log', $e->getMessage());
         }

@@ -10,15 +10,15 @@ use DomainException;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Ejecuta la decision de una persona sobre una inconsistencia en revision manual,
- * dejando en el historial quien decidio, que y por que.
+ * Ejecuta la decisión de una persona sobre una inconsistencia en revisión manual,
+ * dejando en el historial quién decidió, qué y por qué.
  */
 class DataIssueResolver
 {
     public function __construct(private TraceabilityCorrections $corrections) {}
 
     /**
-     * @throws DomainException si la decision no es aplicable.
+     * @throws DomainException si la decisión no es aplicable.
      */
     public function resolve(IncidentDataIssue $issue, IssueDecision $decision, string $actor, string $reason): void
     {

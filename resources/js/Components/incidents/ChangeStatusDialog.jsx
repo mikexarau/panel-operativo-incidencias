@@ -3,7 +3,7 @@ import Field from '../ui/Field';
 import Modal from '../ui/Modal';
 import OperatorField from './OperatorField';
 
-/** Confirmacion de cualquier cambio de estado. Es el unico camino para ejecutarlos. */
+/** Confirmación de cualquier cambio de estado. Es el único camino para ejecutarlos. */
 export default function ChangeStatusDialog({ incident, transition, operator, onClose }) {
     const form = useForm({
         status: transition.status,

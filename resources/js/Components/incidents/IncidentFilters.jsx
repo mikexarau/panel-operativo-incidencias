@@ -3,7 +3,7 @@ import Field from '../ui/Field';
 
 const SEARCH_DELAY_MS = 300;
 
-/** El texto vive aqui mientras se escribe; se envia a la URL cuando el usuario hace una pausa. */
+/** El texto vive aquí mientras se escribe; se envía a la URL cuando el usuario hace una pausa. */
 export default function IncidentFilters({ filters, priorities, onChange }) {
     const [search, setSearch] = useState(filters.q ?? '');
     const lastSent = useRef(filters.q ?? '');
@@ -22,7 +22,7 @@ export default function IncidentFilters({ filters, priorities, onChange }) {
     }, [search]);
 
     // Refleja cambios externos, como "Quitar filtros". La respuesta a lo que se acaba de
-    // enviar no cuenta: pisaria lo escrito mientras tanto. Se compara sin espacios
+    // enviar no cuenta: pisaría lo escrito mientras tanto. Se compara sin espacios
     // laterales porque el servidor los recorta.
     useEffect(() => {
         const external = filters.q ?? '';

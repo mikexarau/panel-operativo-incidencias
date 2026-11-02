@@ -1,5 +1,5 @@
 /**
- * Etiqueta, control y error de validacion enlazados. `as` admite input, textarea o select.
+ * Etiqueta, control y error de validación enlazados. `as` admite input, textarea o select.
  */
 export default function Field({ id, label, error, as: Control = 'input', ...controlProps }) {
     return (

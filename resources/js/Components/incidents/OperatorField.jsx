@@ -1,6 +1,6 @@
 import Field from '../ui/Field';
 
-/** Quien firma la accion en el historial. Compartido por todos los formularios. */
+/** Quién firma la acción en el historial. Compartido por todos los formularios. */
 export default function OperatorField({ id, operator, error }) {
     return (
         <Field

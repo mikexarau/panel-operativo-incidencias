@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 
 /**
- * Unico punto que navega dentro del panel. La URL guarda los filtros y la incidencia
+ * Único punto que navega dentro del panel. La URL guarda los filtros y la incidencia
  * abierta, y cada cambio pide al servidor solo las props afectadas.
  */
 function visit(changes, only) {

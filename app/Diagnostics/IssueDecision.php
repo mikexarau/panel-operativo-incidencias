@@ -3,23 +3,23 @@
 namespace App\Diagnostics;
 
 /**
- * Decision humana con la que se cierra una inconsistencia en revision manual.
+ * Decisión humana con la que se cierra una inconsistencia en revisión manual.
  */
 enum IssueDecision: string
 {
-    /** La incidencia tiene razon: se anade un log que recoge su estado actual. */
+    /** La incidencia tiene razón: se añade un log que recoge su estado actual. */
     case KeepStatus = 'keep-status';
 
-    /** El ultimo log tiene razon: la incidencia adopta su valor. */
+    /** El último log tiene razón: la incidencia adopta su valor. */
     case AdoptLog = 'adopt-log';
 
-    /** El log es erroneo: se anula, sin borrarlo. */
+    /** El log es erróneo: se anula, sin borrarlo. */
     case VoidLog = 'void-log';
 
-    /** Anomalia historica conocida: se conserva y deja de reportarse. */
+    /** Anomalía histórica conocida: se conserva y deja de reportarse. */
     case Accept = 'accept';
 
-    /** Cierre automatico: el diagnostico ya no detecta el problema. */
+    /** Cierre automático: el diagnóstico ya no detecta el problema. */
     case NoLongerDetected = 'no-longer-detected';
 
     /**

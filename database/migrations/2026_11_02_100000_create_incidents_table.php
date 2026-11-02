@@ -18,17 +18,18 @@ return new class extends Migration
             $table->string('status', 20)->default('open');
             $table->string('priority', 20)->default('medium');
             $table->string('requester_name', 100);
-            // Nombre libre: no hay tabla de usuarios porque la autenticacion queda fuera de alcance.
+            // Nombre libre: no hay tabla de usuarios porque la autenticación queda fuera de alcance.
             $table->string('assigned_to', 100)->nullable();
             $table->timestamps();
 
-            // Filtros habituales del listado, siempre ordenado por fecha.
-            $table->index(['status', 'priority', 'created_at']);
+            // Filtros habituales del listado, siempre ordenado por fecha. Con estado y
+            // prioridad a la vez, MySQL usa uno de estos y filtra el resto sobre pocas filas.
+            $table->index(['status', 'created_at']);
             $table->index(['priority', 'created_at']);
             $table->index('created_at');
         });
 
-        // Valores literales a proposito: una migracion es una foto del esquema en su momento.
+        // Valores literales a propósito: una migración es una foto del esquema en su momento.
         DB::statement("ALTER TABLE incidents ADD CONSTRAINT incidents_status_check CHECK (status IN ('open', 'in_review', 'blocked', 'resolved'))");
         DB::statement("ALTER TABLE incidents ADD CONSTRAINT incidents_priority_check CHECK (priority IN ('low', 'medium', 'high', 'critical'))");
     }

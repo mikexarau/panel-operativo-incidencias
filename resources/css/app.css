@@ -2,8 +2,8 @@
 
 /*
  * Tokens del panel. Vocabulario visual tomado del mantenimiento: azul de ropa de
- * trabajo, gris hormigon y amarillo de senalizacion. El amarillo se reserva para la
- * accion principal y la banda de peligro de lo que requiere atencion.
+ * trabajo, gris hormigón y amarillo de señalización. El amarillo se reserva para la
+ * acción principal y la banda de peligro de lo que requiere atención.
  */
 @theme {
     --font-sans: 'Barlow', ui-sans-serif, system-ui, sans-serif;

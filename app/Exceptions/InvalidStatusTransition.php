@@ -8,7 +8,7 @@ use RuntimeException;
 
 /**
  * Cambio de estado rechazado por una regla de negocio. Es un error esperado:
- * no se reporta y llega al operador como un error de validacion mas.
+ * no se reporta y llega al operador como un error de validación más.
  */
 class InvalidStatusTransition extends RuntimeException
 {

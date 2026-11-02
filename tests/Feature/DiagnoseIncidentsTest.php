@@ -148,11 +148,16 @@ class DiagnoseIncidentsTest extends TestCase
             [IncidentLogAction::StatusChanged, 'open', 'open'],
         ]);
 
-        $findings = app(IncidentConsistencyChecker::class)->incoherentLogs();
+        // El primer log de una incidencia también se comprueba, aunque no tenga anterior.
+        $withoutValue = Incident::factory()->create(['status' => IncidentStatus::Open]);
+        $insertLogs($withoutValue, [[IncidentLogAction::Created, null, null]]);
 
-        $this->assertCount(2, $findings);
-        $this->assertStringContainsString('reapertura', $findings[0]->evidence);
-        $this->assertStringContainsString('iguales', $findings[1]->evidence);
+        $evidence = collect(app(IncidentConsistencyChecker::class)->incoherentLogs())->pluck('evidence', 'incidentId');
+
+        $this->assertCount(3, $evidence);
+        $this->assertStringContainsString('reapertura', $evidence[$reopened->id]);
+        $this->assertStringContainsString('iguales', $evidence[$noOp->id]);
+        $this->assertStringContainsString('catálogo', $evidence[$withoutValue->id]);
     }
 
     public function test_manual_decisions_leave_a_trace_and_the_diagnostic_converges_to_zero(): void

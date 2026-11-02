@@ -18,7 +18,7 @@ use Inertia\Response;
 class IncidentController extends Controller
 {
     /**
-     * Las closures se evaluan solo si el frontend las pide: al filtrar se recargan
+     * Las closures se evalúan solo si el frontend las pide: al filtrar se recargan
      * incidents y statusSummary, y al abrir una incidencia solo selectedIncident.
      */
     public function index(ListIncidentsRequest $request): Response
@@ -56,8 +56,8 @@ class IncidentController extends Controller
     }
 
     /**
-     * Contadores por estado respetando los demas filtros: cada cifra indica
-     * cuantas incidencias se veran al pulsar ese estado.
+     * Contadores por estado respetando los demás filtros: cada cifra indica
+     * cuántas incidencias se verán al pulsar ese estado.
      *
      * @return list<array{value: string, label: string, count: int}>
      */

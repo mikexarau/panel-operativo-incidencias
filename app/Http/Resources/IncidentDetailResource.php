@@ -14,6 +14,7 @@ class IncidentDetailResource extends IncidentResource
     {
         return [
             ...parent::toArray($request),
+            'description' => $this->description,
             'logs' => $this->logs->map(fn (IncidentLog $log) => [
                 'id' => $log->id,
                 'action' => $log->action->value,
@@ -40,7 +41,7 @@ class IncidentDetailResource extends IncidentResource
     }
 
     /**
-     * Un log puede contener valores fuera de catalogo: se muestran tal cual.
+     * Un log puede contener valores fuera de catálogo: se muestran tal cual.
      */
     private function statusLabel(?string $value): ?string
     {

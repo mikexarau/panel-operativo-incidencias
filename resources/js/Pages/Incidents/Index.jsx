@@ -13,8 +13,8 @@ import { useIncidentFilters } from '../../hooks/useIncidentFilters';
 import { useOperator } from '../../hooks/useOperator';
 
 /**
- * Compone la pantalla. Los datos y filtros llegan por props desde el servidor; aqui
- * solo vive que dialogo esta abierto. El reparto completo se explica en el README.
+ * Compone la pantalla. Los datos y filtros llegan por props desde el servidor; aquí
+ * solo vive qué diálogo está abierto. El reparto completo se explica en el README.
  */
 export default function Index({ filters, priorities, statusSummary, incidents, selectedIncident }) {
     const operator = useOperator();

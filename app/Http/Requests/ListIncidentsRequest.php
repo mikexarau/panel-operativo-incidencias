@@ -9,7 +9,7 @@ use Illuminate\Validation\Rule;
 
 class ListIncidentsRequest extends FormRequest
 {
-    /** Un filtro invalido en la URL lleva al listado limpio, nunca de vuelta a la misma URL. */
+    /** Un filtro inválido en la URL lleva al listado limpio, nunca de vuelta a la misma URL. */
     protected $redirectRoute = 'incidents.index';
 
     public function rules(): array

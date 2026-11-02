@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
  */
 class IncidentConsistencyChecker
 {
-    /** Por debajo de esta separacion, dos logs identicos del mismo actor son un doble envio. */
+    /** Por debajo de esta separación, dos logs idénticos del mismo actor son un doble envío. */
     public const DOUBLE_SUBMIT_SECONDS = 5;
 
     /**
@@ -57,8 +57,8 @@ class IncidentConsistencyChecker
             SQL);
 
         return array_map(function (object $row) {
-            // Si el ultimo log es posterior al ultimo cambio de la fila, contradice
-            // el estado en vez de faltar una traza: no se puede asumir que este bien.
+            // Si el último log es posterior al último cambio de la fila, contradice
+            // el estado en vez de faltar una traza: no se puede asumir que esté bien.
             $autoFixable = $row->last_log_at === null
                 || Carbon::parse($row->updated_at)->gte(Carbon::parse($row->last_log_at));
 
@@ -188,7 +188,7 @@ class IncidentConsistencyChecker
     }
 
     /**
-     * Logs de estado vigentes numerados del mas reciente al mas antiguo por incidencia.
+     * Logs de estado vigentes numerados del más reciente al más antiguo por incidencia.
      */
     private function lastStatusLogSql(): string
     {
@@ -203,7 +203,7 @@ class IncidentConsistencyChecker
     }
 
     /**
-     * Logs de estado vigentes en orden cronologico, cada uno junto a los datos del anterior.
+     * Logs de estado vigentes en orden cronológico, cada uno junto a los datos del anterior.
      */
     private function orderedStatusLogsSql(): string
     {
@@ -225,7 +225,7 @@ class IncidentConsistencyChecker
 
     private function repeatsPreviousLogSql(): string
     {
-        return 'action = prev_action AND old_value <=> prev_old AND new_value <=> prev_new';
+        return 'action <=> prev_action AND old_value <=> prev_old AND new_value <=> prev_new';
     }
 
     private function hasNoResolutionLogSql(): string

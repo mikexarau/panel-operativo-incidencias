@@ -9,7 +9,7 @@ function Flag({ children, className }) {
     );
 }
 
-/** Avisos en texto que acompanan a la banda de peligro de la fila. */
+/** Avisos en texto que acompañan a la banda de peligro de la fila. */
 export default function IncidentFlags({ incident }) {
     if (!incident.is_overdue && !incident.open_data_issues_count) {
         return null;

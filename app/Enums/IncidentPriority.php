@@ -20,8 +20,8 @@ enum IncidentPriority: string
     }
 
     /**
-     * Plazo orientativo de atencion. El esquema no tiene fecha limite, asi que
-     * una incidencia "vencida" se deriva de su prioridad y su antiguedad.
+     * Plazo orientativo de atención. El esquema no tiene fecha límite, así que
+     * una incidencia "vencida" se deriva de su prioridad y su antigüedad.
      */
     public function slaHours(): int
     {

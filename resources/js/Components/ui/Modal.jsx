@@ -2,7 +2,7 @@ import { useEffect, useId, useRef } from 'react';
 import Icon from './Icon';
 
 /**
- * Envoltorio de <dialog> nativo: aporta foco atrapado, Esc y fondo inerte sin codigo
+ * Envoltorio de <dialog> nativo: aporta foco atrapado, Esc y fondo inerte sin código
  * propio. El padre decide si existe montandolo o no.
  */
 export default function Modal({ title, onClose, variant = 'modal', children }) {
