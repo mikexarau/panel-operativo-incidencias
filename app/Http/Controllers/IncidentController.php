@@ -4,44 +4,40 @@ namespace App\Http\Controllers;
 
 use App\Actions\Incidents\CreateIncident;
 use App\Enums\IncidentPriority;
-use App\Enums\IncidentStatus;
+use App\Enums\IncidentSort;
 use App\Http\Requests\ListIncidentsRequest;
 use App\Http\Requests\StoreIncidentRequest;
 use App\Http\Resources\IncidentDetailResource;
 use App\Http\Resources\IncidentResource;
-use App\Models\Incident;
+use App\Queries\IncidentDashboard;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class IncidentController extends Controller
 {
     /**
-     * Las closures se evalúan solo si el frontend las pide: al filtrar se recargan
-     * incidents y statusSummary, y al abrir una incidencia solo selectedIncident.
+     * Las closures solo se evalúan si el frontend las pide: al filtrar se recarga el
+     * listado y sus indicadores, y al abrir una incidencia solo selectedIncident.
      */
-    public function index(ListIncidentsRequest $request): Response
+    public function index(ListIncidentsRequest $request, IncidentDashboard $dashboard): Response
     {
         $filters = $request->filters();
+        $selectedId = $request->validated('incident');
 
         return Inertia::render('Incidents/Index', [
             'filters' => fn () => $filters,
-            'priorities' => array_map(
-                fn (IncidentPriority $priority) => ['value' => $priority->value, 'label' => $priority->label()],
-                IncidentPriority::cases(),
-            ),
-            'statusSummary' => fn () => $this->statusSummary($filters),
-            'incidents' => fn () => IncidentResource::collection(
-                Incident::query()
-                    ->filter($filters)
-                    ->withCount('openDataIssues')
-                    ->latest()
-                    ->latest('id')
-                    ->paginate(15)
-                    ->withQueryString()
-            ),
-            'selectedIncident' => fn () => $this->selectedIncident($request->validated('incident')),
+            'priorities' => $this->options(IncidentPriority::cases()),
+            'sorts' => $this->options(IncidentSort::cases()),
+            'summary' => fn () => $dashboard->summary($filters),
+            'priorityLoad' => fn () => $dashboard->priorityLoad($filters),
+            'recentActivity' => fn () => $dashboard->recentActivity(),
+            'incidents' => fn () => IncidentResource::collection($dashboard->list($filters)),
+            'selectedIncident' => function () use ($dashboard, $selectedId) {
+                $incident = $selectedId === null ? null : $dashboard->selected((int) $selectedId);
+
+                return $incident ? IncidentDetailResource::make($incident)->resolve() : null;
+            },
         ]);
     }
 
@@ -56,37 +52,11 @@ class IncidentController extends Controller
     }
 
     /**
-     * Contadores por estado respetando los demás filtros: cada cifra indica
-     * cuántas incidencias se verán al pulsar ese estado.
-     *
-     * @return list<array{value: string, label: string, count: int}>
+     * @param  list<IncidentPriority|IncidentSort>  $cases
+     * @return list<array{value: string, label: string}>
      */
-    private function statusSummary(array $filters): array
+    private function options(array $cases): array
     {
-        $counts = Incident::query()
-            ->filter(Arr::except($filters, 'status'))
-            ->selectRaw('status, COUNT(*) AS total')
-            ->groupBy('status')
-            ->pluck('total', 'status');
-
-        return array_map(fn (IncidentStatus $status) => [
-            'value' => $status->value,
-            'label' => $status->label(),
-            'count' => (int) ($counts[$status->value] ?? 0),
-        ], IncidentStatus::cases());
-    }
-
-    private function selectedIncident(?int $id): ?array
-    {
-        if ($id === null) {
-            return null;
-        }
-
-        $incident = Incident::query()
-            ->withCount('openDataIssues')
-            ->with(['logs' => fn ($q) => $q->oldest()->oldest('id'), 'comments' => fn ($q) => $q->oldest()->oldest('id'), 'openDataIssues'])
-            ->find($id);
-
-        return $incident ? IncidentDetailResource::make($incident)->resolve() : null;
+        return array_map(fn ($case) => ['value' => $case->value, 'label' => $case->label()], $cases);
     }
 }

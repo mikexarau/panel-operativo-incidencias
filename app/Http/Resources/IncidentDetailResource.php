@@ -19,8 +19,8 @@ class IncidentDetailResource extends IncidentResource
                 'id' => $log->id,
                 'action' => $log->action->value,
                 'action_label' => $log->action->label(),
-                'old_label' => $this->statusLabel($log->old_value),
-                'new_label' => $this->statusLabel($log->new_value),
+                'old_label' => IncidentStatus::labelFor($log->old_value),
+                'new_label' => IncidentStatus::labelFor($log->new_value),
                 'user_name' => $log->user_name,
                 'reason' => $log->metadata['reason'] ?? null,
                 'created_at' => $log->created_at->toIso8601String(),
@@ -38,13 +38,5 @@ class IncidentDetailResource extends IncidentResource
                 'proposed_action' => $issue->details['proposed_action'] ?? null,
             ]),
         ];
-    }
-
-    /**
-     * Un log puede contener valores fuera de catálogo: se muestran tal cual.
-     */
-    private function statusLabel(?string $value): ?string
-    {
-        return $value === null ? null : (IncidentStatus::tryFrom($value)?->label() ?? $value);
     }
 }

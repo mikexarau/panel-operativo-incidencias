@@ -81,6 +81,10 @@ class DataIssueResolver
     {
         $log = IncidentLog::query()->findOrFail($issue->details['log_id']);
 
+        if ($log->voided_at !== null) {
+            throw new DomainException("El log #{$log->id} ya está anulado.");
+        }
+
         $this->corrections->voidLog($log, $actor, $metadata);
     }
 }

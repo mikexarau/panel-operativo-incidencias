@@ -8,6 +8,7 @@ use App\Enums\IncidentLogAction;
 use App\Enums\IncidentStatus;
 use App\Models\Incident;
 use App\Models\IncidentDataIssue;
+use App\Models\IncidentLog;
 use Database\Seeders\IncidentSeeder;
 use Database\Seeders\InconsistentIncidentSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -181,6 +182,45 @@ class DiagnoseIncidentsTest extends TestCase
         $this->assertSame('Responsable de calidad', $fridge->logs()->where('action', IncidentLogAction::StatusReconciled)->sole()->user_name);
 
         $this->artisan('incidents:diagnose')->assertSuccessful();
+    }
+
+    public function test_keep_status_records_the_current_status_as_the_truth(): void
+    {
+        $this->seed(InconsistentIncidentSeeder::class);
+        $this->fix();
+
+        $fridge = $this->incidentTitled('Cámara frigorífica con alarma de temperatura');
+
+        $this->artisan('incidents:resolve-issue', [
+            'issue' => $fridge->openDataIssues()->sole()->id,
+            '--decision' => 'keep-status',
+            '--actor' => 'Responsable de calidad',
+            '--reason' => 'La incidencia sigue bloqueada',
+        ])->assertSuccessful();
+
+        $reconciled = $fridge->logs()->where('action', IncidentLogAction::StatusReconciled)->sole();
+
+        $this->assertSame(IncidentStatus::Blocked, $fridge->fresh()->status);
+        $this->assertSame(IncidentStatus::Resolved->value, $reconciled->old_value);
+        $this->assertSame(IncidentStatus::Blocked->value, $reconciled->new_value);
+    }
+
+    public function test_an_already_voided_log_cannot_be_voided_again(): void
+    {
+        $this->seed(InconsistentIncidentSeeder::class);
+        $this->fix();
+
+        $issue = $this->incidentTitled('Central de incendios con aviso de avería')->openDataIssues()->sole();
+        IncidentLog::query()->findOrFail($issue->details['log_id'])->forceFill(['voided_at' => now()])->save();
+
+        $this->artisan('incidents:resolve-issue', [
+            'issue' => $issue->id,
+            '--decision' => 'void-log',
+            '--actor' => 'Responsable de calidad',
+            '--reason' => 'Duplicado',
+        ])->assertFailed();
+
+        $this->assertNull($issue->fresh()->resolved_at);
     }
 
     public function test_a_decision_that_does_not_fit_the_rule_is_rejected(): void

@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', '/incidents');
 
 Route::get('/incidents', [IncidentController::class, 'index'])->name('incidents.index');
-Route::post('/incidents', [IncidentController::class, 'store'])->name('incidents.store');
-Route::patch('/incidents/{incident}/status', [IncidentStatusController::class, 'update'])->name('incidents.status.update');
-Route::post('/incidents/{incident}/comments', [IncidentCommentController::class, 'store'])->name('incidents.comments.store');
+
+// Sin autenticación, las escrituras se limitan por IP para acotar abusos.
+Route::middleware('throttle:60,1')->group(function () {
+    Route::post('/incidents', [IncidentController::class, 'store'])->name('incidents.store');
+    Route::patch('/incidents/{incident}/status', [IncidentStatusController::class, 'update'])->whereNumber('incident')->name('incidents.status.update');
+    Route::post('/incidents/{incident}/comments', [IncidentCommentController::class, 'store'])->whereNumber('incident')->name('incidents.comments.store');
+});

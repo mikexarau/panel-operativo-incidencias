@@ -21,20 +21,9 @@ class IncidentConsistencyRepairer
 {
     public const SYSTEM_ACTOR = 'system:diagnostic';
 
-    public const FIXED = 'corregida';
-
-    public const FLAGGED = 'marcada para revisión';
-
-    public const ALREADY_FLAGGED = 'ya estaba en revisión';
-
-    public const SKIPPED = 'omitida: los datos han cambiado';
-
     public function __construct(private TraceabilityCorrections $corrections) {}
 
-    /**
-     * @return self::FIXED|self::FLAGGED|self::ALREADY_FLAGGED|self::SKIPPED
-     */
-    public function apply(Finding $finding, string $runId): string
+    public function apply(Finding $finding, string $runId): RepairOutcome
     {
         if (! $finding->autoFixable) {
             return $this->flagForReview($finding, $runId);
@@ -65,7 +54,7 @@ class IncidentConsistencyRepairer
             ]);
     }
 
-    private function reconstructResolutionLog(Finding $finding, string $runId): string
+    private function reconstructResolutionLog(Finding $finding, string $runId): RepairOutcome
     {
         return DB::transaction(function () use ($finding, $runId) {
             $incident = Incident::query()->lockForUpdate()->findOrFail($finding->incidentId);
@@ -77,7 +66,7 @@ class IncidentConsistencyRepairer
                 ->exists();
 
             if ($incident->status !== IncidentStatus::Resolved || $hasResolutionLog) {
-                return self::SKIPPED;
+                return RepairOutcome::Skipped;
             }
 
             $this->corrections->appendReconciliation(
@@ -94,11 +83,11 @@ class IncidentConsistencyRepairer
                 ],
             );
 
-            return self::FIXED;
+            return RepairOutcome::Fixed;
         });
     }
 
-    private function voidDuplicate(Finding $finding, string $runId): string
+    private function voidDuplicate(Finding $finding, string $runId): RepairOutcome
     {
         return DB::transaction(function () use ($finding, $runId) {
             Incident::query()->lockForUpdate()->findOrFail($finding->incidentId);
@@ -106,7 +95,7 @@ class IncidentConsistencyRepairer
             $log = IncidentLog::query()->findOrFail($finding->logId);
 
             if ($log->voided_at !== null) {
-                return self::SKIPPED;
+                return RepairOutcome::Skipped;
             }
 
             $this->corrections->voidLog($log, self::SYSTEM_ACTOR, [
@@ -116,17 +105,17 @@ class IncidentConsistencyRepairer
                 'reason' => 'Copia de un doble envío: misma transición y mismo actor con segundos de diferencia.',
             ]);
 
-            return self::FIXED;
+            return RepairOutcome::Fixed;
         });
     }
 
-    private function flagForReview(Finding $finding, string $runId): string
+    private function flagForReview(Finding $finding, string $runId): RepairOutcome
     {
         return DB::transaction(function () use ($finding, $runId) {
             $issue = IncidentDataIssue::query()->lockForUpdate()->firstOrNew(['fingerprint' => $finding->fingerprint]);
 
             if ($issue->exists && $issue->resolved_at === null) {
-                return self::ALREADY_FLAGGED;
+                return RepairOutcome::AlreadyFlagged;
             }
 
             $issue->fill([
@@ -142,7 +131,7 @@ class IncidentConsistencyRepairer
             $issue->forceFill(['resolved_at' => null, 'resolved_by' => null, 'resolution' => null, 'resolution_note' => null]);
             $issue->save();
 
-            return self::FLAGGED;
+            return RepairOutcome::Flagged;
         });
     }
 }

@@ -49,10 +49,13 @@ class DiagnoseIncidents extends Command
         $runId = (string) Str::uuid();
         $results = [];
         $failures = 0;
+        $changedData = false;
 
         foreach ($findings as $finding) {
             try {
-                $results[] = [$finding->incidentId, $finding->rule->value, $repairer->apply($finding, $runId)];
+                $outcome = $repairer->apply($finding, $runId);
+                $changedData = $changedData || $outcome->changedData();
+                $results[] = [$finding->incidentId, $finding->rule->value, $outcome->value];
             } catch (Throwable $e) {
                 $failures++;
                 $results[] = [$finding->incidentId, $finding->rule->value, "ERROR: {$e->getMessage()}"];
@@ -63,7 +66,7 @@ class DiagnoseIncidents extends Command
             $this->table(['Incidencia', 'Regla', 'Resultado'], $results);
         }
 
-        if (array_intersect(array_column($results, 2), [IncidentConsistencyRepairer::FIXED, IncidentConsistencyRepairer::FLAGGED]) !== []) {
+        if ($changedData) {
             $this->components->info("Ejecución {$runId}. Búscala en metadata.run_id de incident_logs y en details.run_id de incident_data_issues.");
         }
 

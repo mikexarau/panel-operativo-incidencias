@@ -67,6 +67,15 @@ enum IncidentStatus: string
     }
 
     /**
+     * Etiqueta de un valor guardado en un log, que puede estar fuera de catálogo: entonces
+     * se muestra tal cual, porque el log conserva lo que ocurrió.
+     */
+    public static function labelFor(?string $value): ?string
+    {
+        return $value === null ? null : (self::tryFrom($value)?->label() ?? $value);
+    }
+
+    /**
      * @return list<string>
      */
     public static function values(): array

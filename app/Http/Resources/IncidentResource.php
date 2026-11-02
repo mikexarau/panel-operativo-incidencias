@@ -29,6 +29,7 @@ class IncidentResource extends JsonResource
             'assigned_to' => $this->assigned_to,
             'created_at' => $this->created_at->toIso8601String(),
             'is_overdue' => $this->isOverdue(),
+            'sla' => $this->slaStatus(),
             'needs_attention' => $this->isOverdue() || $this->status === IncidentStatus::Blocked,
             'open_data_issues_count' => $this->whenCounted('openDataIssues'),
             'allowed_transitions' => array_map(fn (IncidentStatus $target) => [
