@@ -7,6 +7,7 @@ use App\Enums\IncidentStatus;
 use App\Http\Requests\ChangeIncidentStatusRequest;
 use App\Models\Incident;
 use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
 
 class IncidentStatusController extends Controller
 {
@@ -25,6 +26,6 @@ class IncidentStatusController extends Controller
             $request->validated('reason'),
         );
 
-        return back()->with('success', "Incidencia {$target->label()}.");
+        return Inertia::flash('success', "Estado actualizado: {$target->label()}.")->back();
     }
 }

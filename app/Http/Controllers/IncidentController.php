@@ -52,7 +52,7 @@ class IncidentController extends Controller
             $request->validated('actor_name'),
         );
 
-        return back()->with('success', 'Incidencia creada.');
+        return Inertia::flash('success', 'Incidencia creada.')->back();
     }
 
     /**

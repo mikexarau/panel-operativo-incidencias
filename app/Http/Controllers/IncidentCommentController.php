@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreIncidentCommentRequest;
 use App\Models\Incident;
 use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
 
 class IncidentCommentController extends Controller
 {
@@ -15,6 +16,6 @@ class IncidentCommentController extends Controller
             'body' => $request->validated('body'),
         ]);
 
-        return back()->with('success', 'Comentario añadido.');
+        return Inertia::flash('success', 'Comentario añadido.')->back();
     }
 }
